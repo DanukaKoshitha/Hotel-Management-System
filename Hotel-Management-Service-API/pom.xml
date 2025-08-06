@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.hotel-management-system</groupId>
-	<artifactId>Hotel-Managment-Service-API</artifactId>
+	<artifactId>Hotel-Management-Service-API</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Hotel-Managment-Service-API</name>
+	<name>Hotel-Management-Service-API</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

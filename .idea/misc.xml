@@ -5,6 +5,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/Hotel-Managment-Service-API/Hotel-Managment-Service-API/pom.xml" />
+        <option value="$PROJECT_DIR$/Hotel-Management-Service-API/Hotel-Management-Service-API/pom.xml" />
+        <option value="$PROJECT_DIR$/Hotel-Management-Service-API/pom.xml" />
       </list>
     </option>
   </component>
