@@ -35,6 +35,6 @@ public class BranchEntity {
     @OneToOne(mappedBy = "branch")
     private AddressEntity address;
 
-//    @OneToMany(mappedBy = "branch")
-//    private List<RoomEntity> room;
+    @OneToMany(mappedBy = "branch")
+    private List<RoomEntity> room;
 }
