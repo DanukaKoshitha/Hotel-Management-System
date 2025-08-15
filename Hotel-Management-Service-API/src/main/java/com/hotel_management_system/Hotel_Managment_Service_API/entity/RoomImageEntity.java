@@ -10,7 +10,7 @@ public class RoomImageEntity {
     private Long id;
 
     @Embedded
-    private FileFormatter fileFormatter;
+    private FileFormatterEntity fileFormatter;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
