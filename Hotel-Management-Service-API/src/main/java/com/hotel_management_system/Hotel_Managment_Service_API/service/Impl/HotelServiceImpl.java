@@ -11,10 +11,14 @@ import com.hotel_management_system.Hotel_Managment_Service_API.repository.HotelR
 import com.hotel_management_system.Hotel_Managment_Service_API.service.HotelService;
 import com.hotel_management_system.Hotel_Managment_Service_API.util.ByteCodeHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.awt.print.Pageable;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,17 +51,31 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public void delete(String hotelId) {
-
+        hotelRepository.findById(hotelId).orElseThrow(()->new EntryNotFoundException("Hotel Not Found!"));
+        hotelRepository.deleteById(hotelId);
     }
 
     @Override
     public ResponseHotelDto findById(String hotelId) throws SQLException {
-        return null;
+        HotelEntity searchHotel = hotelRepository.findById(hotelId).orElseThrow(() -> new EntryNotFoundException("Hotel Not Found!"));
+
+        return toResponseHotelDto(searchHotel);
     }
 
     @Override
     public HotelPaginateResponseDto findAll(int page, int size, String searchText) {
-        return null;
+        return HotelPaginateResponseDto.builder()
+                .dataCount(hotelRepository.countAllHotels(searchText))
+                .dataList(
+                        hotelRepository.searchHotels(searchText, PageRequest.of(page, size))
+                                .stream().map(e-> {
+                                    try {
+                                        return toResponseHotelDto(e);
+                                    } catch (SQLException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }).collect(Collectors.toList())
+                ).build();
     }
 
 
