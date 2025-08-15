@@ -2,6 +2,7 @@ package com.hotel_management_system.Hotel_Managment_Service_API.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "room")
@@ -30,9 +31,9 @@ public class RoomEntity {
     @JoinColumn(name="branch_id")
     private BranchEntity branch;
 
-//    @OneToMany(mappedBy = "room")
-//    private List<Facility> facilities;
-//
-//    @OneToMany(mappedBy = "room")
-//    private List<RoomImage>  roomImages;
+    @OneToMany(mappedBy = "room")
+    private List<FacilityEntity> facilities;
+
+    @OneToMany(mappedBy = "room")
+    private List<RoomImageEntity>  roomImages;
 }

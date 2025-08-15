@@ -1,5 +1,6 @@
 package com.hotel_management_system.Hotel_Managment_Service_API.entity;
 
+import com.hotel_management_system.Hotel_Managment_Service_API.util.BranchType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,14 +24,14 @@ public class BranchEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "branch_type" , nullable = false)
-    private BranchEntity branchEntity;
+    private BranchType branchType;
 
     @Column(name = "room_count")
     private int roomCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id")
-    private String hotel;
+    private HotelEntity hotel;
 
     @OneToOne(mappedBy = "branch")
     private AddressEntity address;

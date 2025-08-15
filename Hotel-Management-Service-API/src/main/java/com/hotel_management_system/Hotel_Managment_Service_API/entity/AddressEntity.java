@@ -28,5 +28,5 @@ public class AddressEntity {
 
     @OneToOne
     @JoinColumn(name = "branch_id")
-    private String branchId;
+    private BranchEntity branch;
 }
