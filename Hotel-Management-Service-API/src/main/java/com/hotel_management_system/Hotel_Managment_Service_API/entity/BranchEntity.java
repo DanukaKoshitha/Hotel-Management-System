@@ -2,14 +2,12 @@ package com.hotel_management_system.Hotel_Managment_Service_API.entity;
 
 import com.hotel_management_system.Hotel_Managment_Service_API.util.BranchType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.util.List;
 
-@Data
 @Entity
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

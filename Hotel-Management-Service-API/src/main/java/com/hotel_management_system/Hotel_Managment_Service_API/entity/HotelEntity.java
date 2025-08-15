@@ -1,21 +1,19 @@
 package com.hotel_management_system.Hotel_Managment_Service_API.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Entity
-@Table(name = "hotel")
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "hotel")
 public class HotelEntity {
     @Id
     @Column(name = "hotel_id", length=80)

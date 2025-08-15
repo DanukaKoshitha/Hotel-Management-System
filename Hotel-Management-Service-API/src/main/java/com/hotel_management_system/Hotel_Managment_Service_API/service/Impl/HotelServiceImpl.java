@@ -1,15 +1,34 @@
 package com.hotel_management_system.Hotel_Managment_Service_API.service.Impl;
 
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.request.RequestHotelDto;
+import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseBranchDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseHotelDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.paginate.HotelPaginateResponseDto;
+import com.hotel_management_system.Hotel_Managment_Service_API.entity.BranchEntity;
+import com.hotel_management_system.Hotel_Managment_Service_API.entity.HotelEntity;
+import com.hotel_management_system.Hotel_Managment_Service_API.repository.HotelRepository;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.HotelService;
+import com.hotel_management_system.Hotel_Managment_Service_API.util.ByteCodeHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService {
+
+    private final HotelRepository hotelRepository;
+    private final ByteCodeHandler byteCodeHandler;
+
     @Override
     public void create(RequestHotelDto dto) {
-
+        try {
+            hotelRepository.save(toHotel(dto));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -30,5 +49,53 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public HotelPaginateResponseDto findAll(int page, int size, String searchText) {
         return null;
+    }
+
+
+    //////////////////////////////       Dto  maps to Entity         ///////////////////////////////
+
+    private HotelEntity toHotel(RequestHotelDto dto) throws SQLException {
+        return dto == null ? null :
+                HotelEntity.builder()
+                        .hotelName(dto.getHotelName())
+                        .hotelId(UUID.randomUUID().toString())
+                        .starRating(dto.getStarRating())
+                        .description(byteCodeHandler.StringToBlob(dto.getDescription()))
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .activeStatus(true)
+                        .startingFrom(dto.getStartingFrom())
+                        .build();
+    }
+
+    //////////////////////////////       Entity  maps to Dto         ///////////////////////////////
+
+    private ResponseHotelDto toResponseHotelDto(HotelEntity hotelEntity) throws SQLException {
+        return hotelEntity == null ? null :
+                ResponseHotelDto.builder()
+                        .hotelName(hotelEntity.getHotelName())
+                        .hotelId(UUID.randomUUID().toString())
+                        .starRating(hotelEntity.getStarRating())
+                        .description(byteCodeHandler.blobToString(hotelEntity.getDescription()))
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .activeStatus(true)
+                        .startingFrom(hotelEntity.getStartingFrom())
+                        .branches(
+                                hotelEntity.getBranches().stream().map(e-> {
+                                    return toResponseBranchDto(e);
+                                }).toList()
+                        )
+                        .build();
+    }
+
+    private ResponseBranchDto toResponseBranchDto(BranchEntity branch){
+        return branch==null?null:
+                ResponseBranchDto.builder()
+                        .branchId(branch.getBranchId())
+                        .branchName(branch.getBranchName())
+                        .roomCount(branch.getRoomCount())
+                        .branchType(branch.getBranchType())
+                        .build();
     }
 }
