@@ -6,6 +6,7 @@ import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.Resp
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.paginate.HotelPaginateResponseDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.entity.BranchEntity;
 import com.hotel_management_system.Hotel_Managment_Service_API.entity.HotelEntity;
+import com.hotel_management_system.Hotel_Managment_Service_API.exception.EntryNotFoundException;
 import com.hotel_management_system.Hotel_Managment_Service_API.repository.HotelRepository;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.HotelService;
 import com.hotel_management_system.Hotel_Managment_Service_API.util.ByteCodeHandler;
@@ -33,7 +34,15 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public void update(RequestHotelDto dto, String hotelId) throws SQLException {
+        HotelEntity selectedHotel = hotelRepository.findById(hotelId).orElseThrow(()->new EntryNotFoundException("Hotel Not Found!"));
 
+        selectedHotel.setHotelName(dto.getHotelName());
+        selectedHotel.setUpdatedAt(LocalDateTime.now());
+        selectedHotel.setStarRating(dto.getStarRating());
+        selectedHotel.setStartingFrom(dto.getStartingFrom());
+        selectedHotel.setDescription(byteCodeHandler.StringToBlob(dto.getDescription()));
+
+        hotelRepository.save(selectedHotel);
     }
 
     @Override
