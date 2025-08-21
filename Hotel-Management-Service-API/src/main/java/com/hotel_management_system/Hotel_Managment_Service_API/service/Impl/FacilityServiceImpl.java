@@ -4,7 +4,11 @@ import com.hotel_management_system.Hotel_Managment_Service_API.dto.request.Reque
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseFacilityDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.paginate.FacilityPaginateResponseDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.FacilityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class FacilityServiceImpl implements FacilityService {
     @Override
     public void create(RequestFacilityDto dto) {

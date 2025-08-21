@@ -13,8 +13,6 @@ import com.hotel_management_system.Hotel_Managment_Service_API.util.ByteCodeHand
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;

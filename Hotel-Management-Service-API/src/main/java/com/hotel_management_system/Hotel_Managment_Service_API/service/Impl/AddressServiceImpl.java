@@ -3,7 +3,11 @@ package com.hotel_management_system.Hotel_Managment_Service_API.service.Impl;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.request.RequestAddressDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseAddressDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.AddressService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
 
     @Override

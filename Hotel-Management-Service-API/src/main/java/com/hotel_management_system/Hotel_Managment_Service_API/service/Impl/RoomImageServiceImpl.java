@@ -4,7 +4,11 @@ import com.hotel_management_system.Hotel_Managment_Service_API.dto.request.Reque
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseRoomImageDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.paginate.RoomImagePaginateResponseDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.RoomImageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class RoomImageServiceImpl implements RoomImageService {
     @Override
     public void create(RequestRoomImageDto dto) {

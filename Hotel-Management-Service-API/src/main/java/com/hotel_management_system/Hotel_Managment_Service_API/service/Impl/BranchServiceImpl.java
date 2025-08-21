@@ -4,7 +4,11 @@ import com.hotel_management_system.Hotel_Managment_Service_API.dto.request.Reque
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.ResponseBranchDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.dto.response.paginate.BranchPaginateResponseDto;
 import com.hotel_management_system.Hotel_Managment_Service_API.service.BranchService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
     @Override
     public void create(RequestBranchDto dto) {
