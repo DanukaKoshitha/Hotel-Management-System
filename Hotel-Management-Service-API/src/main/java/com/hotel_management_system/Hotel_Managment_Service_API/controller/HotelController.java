@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("/api/v1/hotel")
+@RequestMapping("/hotel_management/api/v1/hotel")
 @RequiredArgsConstructor
 public class HotelController {
 
