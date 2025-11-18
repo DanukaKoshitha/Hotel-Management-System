@@ -14,10 +14,13 @@ import org.lms.exception.BadRequestException;
 import org.lms.exception.DuplicateEntryException;
 import org.lms.repository.OtpRepo;
 import org.lms.repository.SystemUserRepo;
+import org.lms.service.EmailService;
 import org.lms.service.SystemUserService;
 import org.lms.util.OtpGenarater;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
@@ -29,12 +32,13 @@ public class SystemUserServiceImpl implements SystemUserService {
     private final OtpRepo otpRepo;
     private final KeycloakSecurityUtil securityUtil;
     private final OtpGenarater otpGenerator;
+    private final EmailService emailService;
 
     @Value("${keycloak.config.realm}")
     private String realm;
 
     @Override
-    public void createUser(SystemUserRequestDto userRequestDto) {
+    public void createUser(SystemUserRequestDto userRequestDto) throws IOException {
         if (userRequestDto.getFirstName() == null || userRequestDto.getFirstName().trim().isEmpty()){
             throw new BadRequestException("First name is required");
         }
@@ -113,7 +117,7 @@ public class SystemUserServiceImpl implements SystemUserService {
                         .attempts(0)
                         .build();
                 otpRepo.save(createdOtp);
-                //emailService.sendUserSignupVerificationCode(dto.getEmail(), "Verify your email", createdOtp.getCode(), dto.getFirstName());
+                emailService.sendUserSignupVerificationCode(userRequestDto.getEmail(), "Verify your email", createdOtp.getCode(), userRequestDto.getFirstName());
             }
 
         }
