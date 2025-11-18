@@ -3,7 +3,9 @@ package org.lms.config;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class KeycloakSecurityUtil {
     Keycloak keycloak;
 
