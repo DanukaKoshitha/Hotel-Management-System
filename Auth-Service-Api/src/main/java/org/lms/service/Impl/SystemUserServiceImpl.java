@@ -1,13 +1,17 @@
 package org.lms.service.Impl;
 
+import com.amazonaws.services.mq.model.UnauthorizedException;
+import org.springframework.http.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.lms.config.KeycloakSecurityUtil;
+import org.lms.dto.request.LoginRequestDto;
 import org.lms.dto.request.PasswordRequestDto;
 import org.lms.dto.request.SystemUserRequestDto;
 import org.lms.entity.Otp;
@@ -21,7 +25,13 @@ import org.lms.service.EmailService;
 import org.lms.service.SystemUserService;
 import org.lms.util.OtpGenarater;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -35,6 +45,15 @@ public class SystemUserServiceImpl implements SystemUserService {
     private final KeycloakSecurityUtil securityUtil;
     private final OtpGenarater otpGenerator;
     private final EmailService emailService;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.token-uri}")
+    private String KeyCloakApiUrl;
+
+    @Value("${keycloak.config.client-id}")
+    private String clientId;
+
+    @Value("${keycloak.config.secret}")
+    private String secret;
 
     @Value("${keycloak.config.realm}")
     private String realm;
@@ -345,6 +364,91 @@ public class SystemUserServiceImpl implements SystemUserService {
             throw new BadRequestException("try again");
         }
         throw new EntryNotFoundException("unable to find!");
+    }
+
+    @Override
+    public boolean verifyEmail(String otp, String email) {
+        Optional<SystemUser> selectedUserObj = systemUserRepo.findByEmail(email);
+        if(selectedUserObj.isEmpty()){
+            throw new EntryNotFoundException("cant find the associated user");
+        }
+        SystemUser systemUser = selectedUserObj.get();
+        Otp otpObj = systemUser.getOtp();
+
+        if(otpObj.isVerified()){
+            throw new BadRequestException("this otp has been used");
+        }
+
+        if(otpObj.getAttempts()>=5){
+            resend(email, "SIGNUP");
+            return false;
+        }
+
+        if(otpObj.getCode().equals(otp)){
+            UserRepresentation keycloakUser = securityUtil.getKeycloak().realm(realm)
+                    .users()
+                    .search(email)
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(()->new EntryNotFoundException("user not found"));
+
+            keycloakUser.setEmailVerified(true);
+            keycloakUser.setEnabled(true);
+
+            securityUtil.getKeycloak().realm(realm)
+                    .users().get(keycloakUser.getId()).update(keycloakUser);
+
+            systemUser.setEmailVerified(true);
+            systemUser.setEnabled(true);
+            systemUser.setActive(true);
+
+            systemUserRepo.save(systemUser);
+
+            otpObj.setVerified(true);
+            otpObj.setAttempts(otpObj.getAttempts()+1);
+
+            otpRepo.save(otpObj);
+
+            return true;
+        }else{
+            if (otpObj.getAttempts()>=5) {
+                resend(email, "SIGNUP");
+                return false;
+            }
+
+            otpObj.setAttempts(otpObj.getAttempts()+1);
+            otpRepo.save(otpObj);
+        }
+        return false;
+
+    }
+
+    @Override
+    public Object userLogin(LoginRequestDto dto) {
+        Optional<SystemUser> selectedUserObj = systemUserRepo.findByEmail(dto.getEmail());
+
+        if(selectedUserObj.isEmpty()){
+            throw new EntryNotFoundException("cant find the associated user");
+        }
+
+        SystemUser systemUser = selectedUserObj.get();
+        if(!systemUser.isEmailVerified()){
+            resend(dto.getEmail(), "SIGNUP");
+            throw new UnauthorizedException("please verify email");
+        }
+
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("client_id", clientId);
+        requestBody.add("grant_type", OAuth2Constants.PASSWORD);
+        requestBody.add("username", dto.getEmail());
+        requestBody.add("client_secret", secret);
+        requestBody.add("password", dto.getPassword());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> response = restTemplate.postForEntity(KeyCloakApiUrl, requestBody, Object.class);
+        return response.getBody();
     }
 }
 

@@ -1,5 +1,6 @@
 package org.lms.service;
 
+import org.lms.dto.request.LoginRequestDto;
 import org.lms.dto.request.PasswordRequestDto;
 import org.lms.dto.request.SystemUserRequestDto;
 
@@ -14,4 +15,5 @@ public interface SystemUserService {
     public boolean verifyReset(String otp, String email);
     public boolean passwordReset(PasswordRequestDto dto);
     public boolean verifyEmail(String otp, String email);
+    public Object userLogin(LoginRequestDto dto);
 }
