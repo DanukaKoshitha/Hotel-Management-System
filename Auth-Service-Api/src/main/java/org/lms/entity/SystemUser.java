@@ -1,10 +1,8 @@
 package org.lms.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.Instant;
 
 @Entity
@@ -13,6 +11,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 public class SystemUser {
 
     @Id
@@ -58,7 +57,7 @@ public class SystemUser {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @OneToOne(mappedBy = "systemUser")
+    @OneToOne(mappedBy = "systemUser" , cascade = CascadeType.ALL)
     private Otp otp;
 
 }
