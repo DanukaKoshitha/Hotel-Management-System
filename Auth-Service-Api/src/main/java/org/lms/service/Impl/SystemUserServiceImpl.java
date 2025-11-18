@@ -3,10 +3,12 @@ package org.lms.service.Impl;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.lms.config.KeycloakSecurityUtil;
+import org.lms.dto.request.PasswordRequestDto;
 import org.lms.dto.request.SystemUserRequestDto;
 import org.lms.entity.Otp;
 import org.lms.entity.SystemUser;
@@ -303,7 +305,6 @@ public class SystemUserServiceImpl implements SystemUserService {
                 if (otpOb.getAttempts()>=5) {
                     resend(email, "PASSWORD");
                     throw new BadRequestException("you have a new verification code");
-
                 }
 
                 otpOb.setAttempts(otpOb.getAttempts()+1);
@@ -315,6 +316,35 @@ public class SystemUserServiceImpl implements SystemUserService {
         }catch(Exception e){
             return false;
         }
+    }
+
+    @Override
+    public boolean passwordReset(PasswordRequestDto dto) {
+        Optional<SystemUser> selectedUserObj = systemUserRepo.findByEmail(dto.getEmail());
+        if(selectedUserObj.isPresent()){
+
+            SystemUser systemUser = selectedUserObj.get();
+            Otp otpObj = systemUser.getOtp();
+            Keycloak keycloak = securityUtil.getKeycloak();
+            List<UserRepresentation> keyCloakUsers = keycloak.realm(realm).users().search(systemUser.getEmail());
+
+            if(!keyCloakUsers.isEmpty() && otpObj.getCode().equals(dto.getCode())){
+                UserRepresentation keyCloakUser = keyCloakUsers.get(0);
+                UserResource userResource = keycloak.realm(realm).users().get(keyCloakUser.getId());
+                CredentialRepresentation newPass = new CredentialRepresentation();
+                newPass.setType(CredentialRepresentation.PASSWORD);
+                newPass.setValue(dto.getPassword());
+                newPass.setTemporary(false);
+                userResource.resetPassword(newPass);
+
+                systemUser.setUpdatedAt(new Date().toInstant());
+                systemUserRepo.save(systemUser);
+
+                return true;
+            }
+            throw new BadRequestException("try again");
+        }
+        throw new EntryNotFoundException("unable to find!");
     }
 }
 

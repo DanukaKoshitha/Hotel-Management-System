@@ -1,5 +1,6 @@
 package org.lms.service;
 
+import org.lms.dto.request.PasswordRequestDto;
 import org.lms.dto.request.SystemUserRequestDto;
 
 import java.io.IOException;
@@ -11,4 +12,5 @@ public interface SystemUserService {
     public void resend(String email, String type);
     public void forgotPasswordSendVerificationCode(String email);
     public boolean verifyReset(String otp, String email);
+    public boolean passwordReset(PasswordRequestDto dto);
 }
